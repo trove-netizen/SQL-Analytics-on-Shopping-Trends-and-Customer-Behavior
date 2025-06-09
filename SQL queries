@@ -1,0 +1,121 @@
+/*
+ * Script: 03_analysis_queries.sql
+ * Purpose: SQL analytics queries for Shopping Trends and Customer Behavior project.
+ * Author: Your Name
+ * Date: 2025-06-09
+ * Disclaimer: Dataset used with full permission and anonymized for privacy.
+ */
+
+
+/* 
+ * 1. Top 10 Best-Selling Products by Total Revenue
+ * ------------------------------------------------
+ * This query identifies which products generate the highest revenue
+ * by summing purchase amounts grouped by product name.
+ */
+SELECT 
+    p.Product_Name,
+    SUM(pr.Purchase_Amount) AS Total_Revenue
+FROM Purchases pr
+JOIN Products p ON pr.Product_ID = p.Product_ID
+GROUP BY p.Product_Name
+ORDER BY Total_Revenue DESC
+LIMIT 10;
+
+
+/* 
+ * 2. Average Purchase Amount by Customer Gender
+ * ---------------------------------------------
+ * Analyzes spending behavior across different genders by calculating 
+ * the average purchase amount per gender group.
+ */
+SELECT 
+    c.Gender,
+    ROUND(AVG(pr.Purchase_Amount), 2) AS Avg_Purchase_Amount
+FROM Purchases pr
+JOIN Customers c ON pr.Customer_ID = c.Customer_ID
+GROUP BY c.Gender;
+
+
+/* 
+ * 3. Purchase Frequency and Average Purchase Amount by Subscription Status
+ * ------------------------------------------------------------------------
+ * Examines how having a subscription affects purchasing frequency and 
+ * average spending. Counts purchases and calculates average purchase 
+ * amount for subscribed vs. non-subscribed customers.
+ */
+SELECT 
+    c.Subscription_Status,
+    COUNT(pr.Purchase_ID) AS Purchase_Count,
+    ROUND(AVG(pr.Purchase_Amount), 2) AS Avg_Purchase_Amount
+FROM Customers c
+LEFT JOIN Purchases pr ON c.Customer_ID = pr.Customer_ID
+GROUP BY c.Subscription_Status;
+
+
+/* 
+ * 4. Correlation Between Review Ratings and Purchase Patterns
+ * -----------------------------------------------------------
+ * Investigates the relationship between product review ratings and 
+ * purchasing behavior by aggregating purchases and average spend per rating.
+ */
+SELECT 
+    r.Review_Rating,
+    COUNT(pr.Purchase_ID) AS Purchase_Count,
+    ROUND(AVG(pr.Purchase_Amount), 2) AS Avg_Purchase_Amount
+FROM Reviews r
+JOIN Purchases pr ON r.Purchase_ID = pr.Purchase_ID
+GROUP BY r.Review_Rating
+ORDER BY r.Review_Rating DESC;
+
+
+/* 
+ * 5. Customer Age Group vs Average Purchase Amount
+ * ------------------------------------------------
+ * Groups customers into age ranges and calculates the average amount spent 
+ * within each group to analyze spending trends by age.
+ */
+SELECT 
+    CASE 
+        WHEN c.Age < 20 THEN 'Under 20'
+        WHEN c.Age BETWEEN 20 AND 29 THEN '20-29'
+        WHEN c.Age BETWEEN 30 AND 39 THEN '30-39'
+        WHEN c.Age BETWEEN 40 AND 49 THEN '40-49'
+        ELSE '50+'
+    END AS Age_Group,
+    ROUND(AVG(pr.Purchase_Amount), 2) AS Avg_Purchase_Amount
+FROM Customers c
+JOIN Purchases pr ON c.Customer_ID = pr.Customer_ID
+GROUP BY Age_Group
+ORDER BY Age_Group;
+
+
+/* 
+ * 6. Total Discounts Given by Product Category
+ * --------------------------------------------
+ * Sums the total discount amounts offered per product category to identify 
+ * where the most discounts are applied.
+ */
+SELECT 
+    p.Category,
+    SUM(pr.Discount_Amount) AS Total_Discount
+FROM Purchases pr
+JOIN Products p ON pr.Product_ID = p.Product_ID
+GROUP BY p.Category
+ORDER BY Total_Discount DESC;
+
+
+
+Summary of each section:
+Query 1: Finds best sellers by revenue.
+
+Query 2: Compares average spending by gender.
+
+Query 3: Shows how subscription status influences purchase count & average spend.
+
+Query 4: Explores if higher review ratings correlate with more/fewer purchases or higher spend.
+
+Query 5: Groups customers by age to see which age groups spend more.
+
+Query 6: Totals discounts per product category, useful for marketing or pricing analysis.
+
